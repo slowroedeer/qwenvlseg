@@ -1,0 +1,38 @@
+# Checkpoint
+best_checkpoint/
+
+# Generated visualizations
+report_viz/
+
+# Logs
+log/
+
+# Claude Code config
+.claude/
+
+# Debug / smoke test scripts
+debug_train.py
+test_forward.py
+check_multi_person.py
+
+# Dev notes & planning docs
+debugnotes.md
+plan.md
+prompt.md
+progress_report.md
+analysis_qwen35.md
+experiment_report.md
+
+# VOC dataset (2GB, not code)
+data/VOCdevkit/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db

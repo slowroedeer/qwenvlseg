@@ -1,0 +1,30 @@
+# QwenVLSeg 轻量化复现 — 配置文件
+
+model:
+  name: "Qwen/Qwen3-VL-2B-Instruct"
+
+mask_decoder:
+  hidden_dim: 256
+  num_transformer_layers: 2
+  num_heads: 8
+  num_queries: 1  # 每次分割一个目标
+  mask_stride: 4  # mask 输出为输入的 1/4，上采样恢复
+
+data:
+  root: "/root/autodl-tmp/data/VOCdevkit/VOC2012"
+  image_size: 512
+  category: "person"
+  category_id: 15
+  min_mask_pixels: 100  # 过滤 person 像素过少的样本
+
+training:
+  batch_size: 4
+  gradient_accumulation_steps: 2
+  learning_rate: 1.0e-4
+  lr_warmup_steps: 200
+  max_epochs: 20
+  weight_decay: 0.01
+
+output:
+  checkpoint_dir: "/root/autodl-tmp/mycheckpoints"
+  log_interval: 50
