@@ -50,7 +50,7 @@ def visualize_samples(
                 pixel_values=img_tensor,
                 image_grid_thw=torch.tensor([[1, image_size // 16, image_size // 16]], device=device),
                 prompt_text=build_category_prompt(data_cfg['category']),
-                max_new_tokens=128,
+                max_new_tokens=512,
                 image_size=image_size,
             )
 

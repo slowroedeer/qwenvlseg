@@ -11,9 +11,24 @@ from PIL import Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import Qwen3VLForConditionalGeneration, AutoProcessor
+from transformers import (
+    Qwen3VLForConditionalGeneration,
+    Qwen3_5ForConditionalGeneration,
+    AutoProcessor,
+)
 
 from .mask_decoder import MaskDecoder
+
+
+def _resolve_model_path(model_name: str, cache_dir: str | None = None) -> str:
+    """Download via ModelScope if available, return local path. Falls back to original name."""
+    if cache_dir is None:
+        return model_name
+    try:
+        from modelscope import snapshot_download
+        return snapshot_download(model_name, cache_dir=cache_dir)
+    except Exception:
+        return model_name
 
 
 class QwenVLSeg(nn.Module):
@@ -28,15 +43,24 @@ class QwenVLSeg(nn.Module):
         if mask_decoder_cfg is None:
             mask_decoder_cfg = {}
 
-        # ── Load VL model ──
-        self.base_model = Qwen3VLForConditionalGeneration.from_pretrained(
-            model_name, torch_dtype=torch.float32, trust_remote_code=True
-        )
-        self.processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
-        self.tokenizer = self.processor.tokenizer
+        # ── Resolve model path (ModelScope > HF) ──
+        cache_dir = mask_decoder_cfg.pop('model_cache_dir', None)
+        model_path = _resolve_model_path(model_name, cache_dir=cache_dir)
 
-        # Internal components (LLM is frozen — no LoRA)
-        inner = self.base_model.model  # Qwen3VLModel inside ConditionalGeneration
+        # ── Load VL model (hard switch — no fallback between model families) ──
+        model_name_lower = model_name.lower()
+        if 'qwen3.5' in model_name_lower or 'qwen3_5' in model_name_lower:
+            self.base_model = Qwen3_5ForConditionalGeneration.from_pretrained(
+                model_path, torch_dtype=torch.float32, trust_remote_code=True
+            )
+        else:
+            self.base_model = Qwen3VLForConditionalGeneration.from_pretrained(
+                model_path, torch_dtype=torch.float32, trust_remote_code=True
+            )
+        self.processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
+        self.tokenizer = self.processor.tokenizer
+        self.base_model.generation_config.pad_token_id = self.tokenizer.eos_token_id
+        inner = self.base_model.model
         self.vision_encoder = inner.visual
         self.llm_decoder = inner.language_model
         self.lm_head = self.base_model.lm_head
@@ -287,7 +311,7 @@ class QwenVLSeg(nn.Module):
         pixel_values: torch.Tensor,
         image_grid_thw: torch.Tensor,
         prompt_text: str,
-        max_new_tokens: int = 256,
+        max_new_tokens: int = 512,
         image_size: int = 512,
     ) -> dict:
         """Inference: LLM generates bbox JSON → parse bbox → extract h_mask → mask decode.
@@ -331,6 +355,10 @@ class QwenVLSeg(nn.Module):
 
         # 5. Decode and parse ALL bboxes from native JSON
         generated_text = self.tokenizer.decode(generated_ids, skip_special_tokens=False)
+        # Qwen3.5 outputs empty <think> block by default — strip format noise before parsing
+        generated_text = re.sub(
+            r'<think>.*?</think>\s*', '', generated_text, flags=re.DOTALL
+        )
         bboxes = self._parse_bboxes_from_text(generated_text)
 
         if not bboxes:

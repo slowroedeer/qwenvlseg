@@ -1,9 +1,10 @@
 # QwenVLSeg 轻量化复现 — 配置文件
 
 model:
-  name: "Qwen/Qwen3-VL-2B-Instruct"
+  name: "Qwen/Qwen3.5-0.8B"
 
 mask_decoder:
+  model_cache_dir: "/root/autodl-tmp/model"  # ModelScope 下载缓存目录
   hidden_dim: 256
   num_transformer_layers: 2
   num_heads: 8

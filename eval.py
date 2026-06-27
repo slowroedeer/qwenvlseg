@@ -97,7 +97,7 @@ def evaluate(
                 pixel_values=img_tensor,
                 image_grid_thw=img_grid_thw,
                 prompt_text=prompt,
-                max_new_tokens=128,
+                max_new_tokens=512,
                 image_size=image_size,
             )
 
