@@ -14,13 +14,13 @@ mask_decoder:
 data:
   root: "/root/autodl-tmp/data/VOCdevkit/VOC2012"
   image_size: 512
-  category: "person"
-  category_id: 15
-  min_mask_pixels: 100  # 过滤 person 像素过少的样本
+  categories: "all"  # "all" = all 20 VOC classes, or list like ["person", "car"]
+  min_mask_pixels: 100  # filter samples with too few class pixels
 
 training:
-  batch_size: 4
+  batch_size: 8
   gradient_accumulation_steps: 2
+  num_workers: 2
   learning_rate: 1.0e-4
   lr_warmup_steps: 200
   max_epochs: 20

@@ -163,6 +163,7 @@ class QwenVLSeg(nn.Module):
         device = input_ids.device
         embed_layer = self.llm_decoder.get_input_embeddings()
         inputs_embeds = embed_layer(input_ids)
+        visual_embeds_flat = visual_embeds_flat.to(inputs_embeds.dtype)
 
         img_token_id = self.base_model.config.image_token_id
         hw_list = [(int(thw[1].item()), int(thw[2].item())) for thw in image_grid_thw]
@@ -260,12 +261,13 @@ class QwenVLSeg(nn.Module):
             bbox[:, 3] = torch.maximum(bbox[:, 3], bbox[:, 1] + 10)
         else:
             bbox = gt_bbox if gt_bbox is not None else torch.zeros(B, 4, device=device)
+        vit_features_fp32 = [f.float() for f in vit_features]
         mask_out = self.mask_decoder(
-            vit_features=vit_features,
-            h_mask=h_mask,
+            vit_features=vit_features_fp32,
+            h_mask=h_mask.float(),
             bbox=bbox,
             image=orig_images,
-            visual_embeds=T_mm_embeds,
+            visual_embeds=T_mm_embeds.float(),
             post_counts=post_counts,
         )
         mask_logits = mask_out['mask_logits']
@@ -353,13 +355,14 @@ class QwenVLSeg(nn.Module):
         prompt_len = inputs['input_ids'].shape[1]
         generated_ids = gen_out[0, prompt_len:].tolist()
 
-        # 5. Decode and parse ALL bboxes from native JSON
+        # 5. Decode and parse ALL items (bbox + label) from native JSON
         generated_text = self.tokenizer.decode(generated_ids, skip_special_tokens=False)
         # Qwen3.5 outputs empty <think> block by default — strip format noise before parsing
         generated_text = re.sub(
             r'<think>.*?</think>\s*', '', generated_text, flags=re.DOTALL
         )
-        bboxes = self._parse_bboxes_from_text(generated_text)
+        items = self._parse_items_from_text(generated_text)
+        bboxes = [item["bbox"] for item in items]
 
         if not bboxes:
             return {
@@ -368,6 +371,7 @@ class QwenVLSeg(nn.Module):
                 'bboxes': [],
                 'text_output': generated_text,
                 'iou_score': 0.0,
+                'per_class_masks': {},
             }
 
         # ═══ Pass 2: Insert mask tokens → forward → extract h_masks ═══
@@ -405,24 +409,32 @@ class QwenVLSeg(nn.Module):
         img_pos_ext = (ext_ids[0] == img_token_id).nonzero(as_tuple=True)[0]
         T_mm_embeds = ext_hidden[0, img_pos_ext]
 
-        # 8. Mask decoder: run per instance, merge via max
+        # 8. Mask decoder: run per instance, merge via max, group by label
         masks_per_instance = []
         iou_scores = []
+        per_class_masks = {}  # label → list of mask tensors
         n_instances = min(len(bboxes), mask_positions.shape[0])
 
+        # Convert bf16→fp32 for mask decoder (base_model may be bf16)
+        vit_features_fp32 = [f.float() for f in vit_features]
+        T_mm_fp32 = T_mm_embeds.float()
+
         for i in range(n_instances):
-            h_mask_i = ext_hidden[0, mask_positions[i]]
+            h_mask_i = ext_hidden[0, mask_positions[i]].float()
             bbox_tensor = torch.tensor([bboxes[i]], device=device, dtype=torch.float32)
             mask_out = self.mask_decoder(
-                vit_features=vit_features,
+                vit_features=vit_features_fp32,
                 h_mask=h_mask_i.unsqueeze(0),
                 bbox=bbox_tensor,
                 image=pixel_values,
-                visual_embeds=T_mm_embeds,
+                visual_embeds=T_mm_fp32,
                 post_counts=post_counts,
             )
             masks_per_instance.append(mask_out['mask_logits'])
             iou_scores.append(mask_out['iou_scores'].item())
+
+            label = items[i].get("label", "unknown") if i < len(items) else "unknown"
+            per_class_masks.setdefault(label, []).append(mask_out['mask_logits'])
 
         # Merge: per-pixel max over all instance masks
         all_masks = torch.cat(masks_per_instance, dim=0)  # (N, 1, H, W)
@@ -434,12 +446,24 @@ class QwenVLSeg(nn.Module):
         )
         mask_pred = (torch.sigmoid(mask_logits) > 0.5).float()
 
+        # Merge per-class masks
+        per_class_np = {}
+        for label, masks in per_class_masks.items():
+            all_m = torch.cat(masks, dim=0)
+            merged = all_m.max(dim=0, keepdim=True)[0]
+            merged_up = F.interpolate(
+                merged, size=(image_size, image_size),
+                mode='bilinear', align_corners=False,
+            )
+            per_class_np[label] = (torch.sigmoid(merged_up) > 0.5).float().squeeze().cpu().numpy()
+
         return {
             'mask': mask_pred.squeeze().cpu().numpy(),
             'mask_logits': mask_logits.squeeze().cpu().numpy(),
             'bboxes': bboxes,
             'text_output': generated_text,
             'iou_score': np.mean(iou_scores) if iou_scores else 0.0,
+            'per_class_masks': per_class_np,
         }
 
     def _insert_mask_tokens(self, generated_text: str) -> str:
@@ -452,28 +476,40 @@ class QwenVLSeg(nn.Module):
         )
         return result
 
-    def _parse_bboxes_from_text(self, text: str) -> list:
-        """Parse ALL bboxes from generated JSON. Returns list of [x1,y1,x2,y2]."""
+    def _parse_items_from_text(self, text: str) -> list:
+        """Parse bbox AND label from generated JSON.
+
+        Returns list of dicts: [{"bbox": [x1,y1,x2,y2], "label": "person"}, ...]
+        """
         json_match = re.search(r'```json\s*(.*?)\s*```', text, re.DOTALL)
         if json_match:
             text = json_match.group(1)
         try:
             data = json.loads(text)
             if isinstance(data, list):
-                bboxes = []
+                items = []
                 for item in data:
                     bbox = item.get("bbox_2d")
+                    label = item.get("label", "")
                     if bbox and len(bbox) == 4:
-                        bboxes.append([int(x) for x in bbox])
-                if bboxes:
-                    return bboxes
+                        items.append({
+                            "bbox": [int(x) for x in bbox],
+                            "label": label,
+                        })
+                if items:
+                    return items
         except (json.JSONDecodeError, KeyError, IndexError):
             pass
-        # Fallback: regex match single bbox
+        # Fallback: regex match single bbox (no label)
         bbox_match = re.search(r'"bbox_2d":\s*\[(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\]', text)
         if bbox_match:
-            return [[int(x) for x in bbox_match.groups()]]
+            return [{"bbox": [int(x) for x in bbox_match.groups()], "label": ""}]
         return []
+
+    def _parse_bboxes_from_text(self, text: str) -> list:
+        """Parse ALL bboxes from generated JSON. Returns list of [x1,y1,x2,y2]."""
+        items = self._parse_items_from_text(text)
+        return [item["bbox"] for item in items]
 
     def save_checkpoint(self, path: str):
         torch.save({

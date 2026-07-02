@@ -25,17 +25,16 @@ class TrainingDataset(Dataset):
         self.voc_dataset = voc_dataset
         self.processor = processor
         self.image_size = image_size
-        self.category = voc_dataset.category
 
     def __len__(self):
         return len(self.voc_dataset)
 
     def __getitem__(self, idx):
-        image_pil, mask, bbox = self.voc_dataset[idx]
+        image_pil, mask, bbox, category = self.voc_dataset[idx]
 
         # Build ChatML prompt text
-        user_instruction = build_category_prompt(self.category)
-        target_json = build_target_json([bbox], self.category)
+        user_instruction = build_category_prompt(category)
+        target_json = build_target_json([bbox], category)
 
         user_content = f"<|vision_start|><|image_pad|><|vision_end|>\n{user_instruction}"
         assistant_content = target_json
@@ -141,15 +140,16 @@ def validate(model, val_loader, device):
     ious = []
     with torch.no_grad():
         for batch in tqdm(val_loader, desc="Validation", leave=False):
-            outputs = model(
-                pixel_values=batch['pixel_values'].to(device),
-                image_grid_thw=batch['image_grid_thw'].to(device),
-                input_ids=batch['input_ids'].to(device),
-                attention_mask=batch['attention_mask'].to(device),
-                orig_images=batch['orig_images'].to(device),
-                gt_mask=batch['gt_mask'].to(device),
-                gt_bbox=batch['gt_bbox'].to(device),
-            )
+            with torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                outputs = model(
+                    pixel_values=batch['pixel_values'].to(device),
+                    image_grid_thw=batch['image_grid_thw'].to(device),
+                    input_ids=batch['input_ids'].to(device),
+                    attention_mask=batch['attention_mask'].to(device),
+                    orig_images=batch['orig_images'].to(device),
+                    gt_mask=batch['gt_mask'].to(device),
+                    gt_bbox=batch['gt_bbox'].to(device),
+                )
             mask_logits = outputs['mask_logits']
             gt = batch['gt_mask']
             for b in range(mask_logits.shape[0]):
@@ -172,18 +172,23 @@ def train(args):
     data_cfg = config['data']
     train_cfg = config['training']
 
+    # ── Resolve categories (backward compat: fall back to category/category_id) ──
+    categories = data_cfg.get('categories', None)
+    if categories is None and 'category' in data_cfg:
+        categories = [data_cfg['category']]
+
     # ── Datasets ──
     train_ds = VOCSegDataset(
         root=data_cfg['root'], split='train',
-        category=data_cfg['category'], category_id=data_cfg['category_id'],
+        categories=categories,
         image_size=data_cfg['image_size'], min_mask_pixels=data_cfg['min_mask_pixels'],
     )
     val_ds = VOCSegDataset(
         root=data_cfg['root'], split='val',
-        category=data_cfg['category'], category_id=data_cfg['category_id'],
+        categories=categories,
         image_size=data_cfg['image_size'], min_mask_pixels=data_cfg['min_mask_pixels'],
     )
-    print(f"Train person samples: {len(train_ds)}, Val: {len(val_ds)}")
+    print(f"Train samples: {len(train_ds)}, Val: {len(val_ds)}")
 
     # ── Model ──
     print("Loading model...")
@@ -199,11 +204,11 @@ def train(args):
 
     train_loader = DataLoader(
         train_wrapped, batch_size=train_cfg['batch_size'],
-        shuffle=True, collate_fn=collate_fn, num_workers=0,
+        shuffle=True, collate_fn=collate_fn, num_workers=train_cfg.get('num_workers', 0),
     )
     val_loader = DataLoader(
         val_wrapped, batch_size=train_cfg['batch_size'],
-        shuffle=False, collate_fn=collate_fn, num_workers=0,
+        shuffle=False, collate_fn=collate_fn, num_workers=train_cfg.get('num_workers', 0),
     )
 
     model.to(device)
@@ -241,21 +246,28 @@ def train(args):
     best_miou = 0.0
     global_step = 0
 
+    # Log file
+    log_path = output_dir / "training_log.csv"
+    log_file = open(log_path, 'w')
+    log_file.write("epoch,seg_loss,mIoU,best_mIoU\n")
+    log_file.flush()
+
     for epoch in range(train_cfg['max_epochs']):
         model.train()
         epoch_seg = 0.0
 
         pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}/{train_cfg['max_epochs']}")
         for step, batch in enumerate(pbar):
-            outputs = model(
-                pixel_values=batch['pixel_values'].to(device),
-                image_grid_thw=batch['image_grid_thw'].to(device),
-                input_ids=batch['input_ids'].to(device),
-                attention_mask=batch['attention_mask'].to(device),
-                orig_images=batch['orig_images'].to(device),
-                gt_mask=batch['gt_mask'].to(device),
-                gt_bbox=batch['gt_bbox'].to(device),
-            )
+            with torch.amp.autocast('cuda', dtype=torch.bfloat16):
+                outputs = model(
+                    pixel_values=batch['pixel_values'].to(device),
+                    image_grid_thw=batch['image_grid_thw'].to(device),
+                    input_ids=batch['input_ids'].to(device),
+                    attention_mask=batch['attention_mask'].to(device),
+                    orig_images=batch['orig_images'].to(device),
+                    gt_mask=batch['gt_mask'].to(device),
+                    gt_bbox=batch['gt_bbox'].to(device),
+                )
 
             loss = outputs['loss'] / grad_accum
             loss.backward()
@@ -286,6 +298,7 @@ def train(args):
         avg_seg = epoch_seg / max(1, len(train_loader))
         print(f"Epoch {epoch+1}: seg={avg_seg:.4f}")
 
+        miou = 0.0
         if len(val_loader) > 0:
             miou = validate(model, val_loader, device)
             print(f"  Val mIoU: {miou:.4f}")
@@ -296,7 +309,13 @@ def train(args):
 
         model.save_checkpoint(str(output_dir / "latest_checkpoint.pt"))
 
+        # Write log
+        log_file.write(f"{epoch+1},{avg_seg:.4f},{miou:.4f},{best_miou:.4f}\n")
+        log_file.flush()
+
+    log_file.close()
     print(f"\nDone. Best mIoU: {best_miou:.4f}")
+    print(f"Log saved to: {log_path}")
 
 
 def main():

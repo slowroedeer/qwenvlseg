@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import cv2
 
 from model.qwenvlseg import QwenVLSeg
-from data.voc_dataset import VOCSegDataset, resize_and_pad
+from data.voc_dataset import VOCSegDataset, resize_and_pad, VOC_CLASSES
 from data.prompts import build_category_prompt
 
 
@@ -24,9 +24,13 @@ def visualize_samples(
     model.eval()
 
     data_cfg = config['data']
+    categories = data_cfg.get('categories', None)
+    if categories is None and 'category' in data_cfg:
+        categories = [data_cfg['category']]
+
     ds = VOCSegDataset(
         root=data_cfg['root'], split='val',
-        category=data_cfg['category'], category_id=data_cfg['category_id'],
+        categories=categories,
         image_size=data_cfg['image_size'], min_mask_pixels=data_cfg['min_mask_pixels'],
     )
     os.makedirs(output_dir, exist_ok=True)
@@ -35,7 +39,7 @@ def visualize_samples(
 
     for n, idx in enumerate(indices):
         print(f"\nSample {n+1}/{num_samples} (idx={idx})")
-        image_pil, gt_mask, gt_bbox = ds[idx]
+        image_pil, gt_mask, gt_bbox, category = ds[idx]
 
         # Run inference
         image_resized, _, ox, oy, nw, nh = resize_and_pad(
@@ -49,7 +53,7 @@ def visualize_samples(
             result = model.generate_and_segment(
                 pixel_values=img_tensor,
                 image_grid_thw=torch.tensor([[1, image_size // 16, image_size // 16]], device=device),
-                prompt_text=build_category_prompt(data_cfg['category']),
+                prompt_text=build_category_prompt(category),
                 max_new_tokens=512,
                 image_size=image_size,
             )

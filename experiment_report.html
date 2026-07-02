@@ -13,603 +13,308 @@
     --border: #d5dbdb;
     --row-even: #f8f9fa;
     --text: #2c3e50;
+    --good: #27ae60;
+    --bad: #c0392b;
+    --warn: #e67e22;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
-    font-size: 14px;
-    line-height: 1.9;
-    color: var(--text);
-    background: var(--bg);
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 48px 40px;
+    font-size: 14px; line-height: 1.9; color: var(--text);
+    background: var(--bg); max-width: 960px; margin: 0 auto; padding: 48px 40px;
   }
-
-  h1 {
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 36px;
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-    padding-bottom: 16px;
-  }
-
-  h2 {
-    font-size: 17px;
-    font-weight: bold;
-    margin: 36px 0 14px 0;
-    color: var(--primary);
-    border-left: 4px solid var(--accent);
-    padding-left: 12px;
-  }
-
-  h3 {
-    font-size: 15px;
-    font-weight: bold;
-    margin: 24px 0 10px 0;
-    color: var(--accent);
-  }
-
-  h4 {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 16px 0 6px 0;
-    color: var(--primary);
-  }
-
+  h1 { text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 36px; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 16px; }
+  h2 { font-size: 17px; font-weight: bold; margin: 36px 0 14px 0; color: var(--primary); border-left: 4px solid var(--accent); padding-left: 12px; }
+  h3 { font-size: 15px; font-weight: bold; margin: 24px 0 10px 0; color: var(--accent); }
+  h4 { font-size: 14px; font-weight: bold; margin: 16px 0 6px 0; color: var(--primary); }
   p { text-indent: 2em; margin-bottom: 10px; }
   p.no_indent { text-indent: 0; }
-  li p { text-indent: 0; }
-
   ul, ol { margin: 6px 0 12px 0; padding-left: 2.5em; }
   li { margin-bottom: 4px; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0 20px 0;
-    font-size: 13px;
-  }
-
-  th {
-    background: var(--primary);
-    color: #fff;
-    font-weight: bold;
-    padding: 8px 6px;
-    text-align: center;
-    white-space: nowrap;
-  }
-
-  td {
-    padding: 6px;
-    text-align: center;
-    border: 1px solid var(--border);
-  }
-
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 20px 0; font-size: 13px; }
+  th { background: var(--primary); color: #fff; font-weight: bold; padding: 8px 6px; text-align: center; white-space: nowrap; }
+  td { padding: 3px 5px; text-align: center; border: 1px solid var(--border); }
   tr:nth-child(even) td { background: var(--row-even); }
-
-  .best-val { font-weight: bold; color: var(--accent); }
   .kpi-val { font-weight: bold; font-size: 1.1em; color: var(--primary); }
   .delta-val { color: var(--accent2); font-size: 0.9em; }
+  .good-val { color: var(--good); font-weight: bold; }
+  .bad-val { color: var(--bad); font-weight: bold; }
   .left-cell { text-align: left; }
-
-  .pipeline {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: nowrap;
-    gap: 6px;
-    margin: 20px 0 24px 0;
-    font-size: 12px;
-  }
-
-  .pipeline .box {
-    background: var(--primary);
-    color: #fff;
-    padding: 8px 10px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-
+  .pipeline { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 6px; margin: 20px 0 24px 0; font-size: 12px; }
+  .pipeline .box { background: var(--primary); color: #fff; padding: 8px 10px; border-radius: 6px; text-align: center; font-weight: bold; flex-shrink: 0; }
   .pipeline .box.small { font-size: 11px; padding: 6px 8px; }
   .pipeline .box.accent { background: var(--accent); }
   .pipeline .box.light { background: #7fb3d8; }
-
-  .pipeline .arrow {
-    font-size: 18px;
-    color: var(--accent);
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-
-  .pipeline .brace-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    border: 1.5px dashed var(--accent);
-    border-radius: 8px;
-    padding: 6px 8px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-
-  .pipeline .brace-group .label {
-    font-size: 10px;
-    color: var(--accent);
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-
-  .vis-section { margin: 28px 0; }
-
-  .vis-section .section-label {
-    font-size: 14px;
-    font-weight: bold;
-    color: var(--accent);
-    margin-bottom: 8px;
-    border-left: 3px solid var(--accent);
-    padding-left: 10px;
-  }
-
-  .vis-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin: 16px 0;
-  }
-
-  .vis-grid.col3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .vis-item { text-align: center; }
-
-  .vis-item img {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-  }
-
-  .vis-item .caption {
-    font-size: 12px;
-    font-weight: bold;
-    margin-bottom: 6px;
-    color: var(--primary);
-  }
-
-  .highlight-box {
-    background: #fef9e7;
-    border-left: 4px solid #f1c40f;
-    padding: 12px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-  }
-
+  .pipeline .arrow { font-size: 18px; color: var(--accent); font-weight: bold; flex-shrink: 0; }
+  .pipeline .brace-group { display: flex; flex-direction: column; gap: 4px; border: 1.5px dashed var(--accent); border-radius: 8px; padding: 6px 8px; text-align: center; flex-shrink: 0; }
+  .pipeline .brace-group .label { font-size: 10px; color: var(--accent); font-weight: bold; margin-bottom: 2px; }
+  .highlight-box { background: #fef9e7; border-left: 4px solid #f1c40f; padding: 12px 16px; margin: 16px 0; font-size: 13px; }
   .highlight-box p { text-indent: 0; }
-
-  .problem-box {
-    background: #f4f6f8;
-    border-left: 4px solid #b0b8c1;
-    padding: 12px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-  }
-
+  .problem-box { background: #f4f6f8; border-left: 4px solid #b0b8c1; padding: 12px 16px; margin: 16px 0; font-size: 13px; }
   .problem-box h4 { color: var(--primary); margin-top: 0; }
   .problem-box p { text-indent: 0; }
-
-  .note {
-    font-size: 12px;
-    color: #888;
-    text-indent: 0;
-  }
-
-  .code-block {
-    background: #f4f6f8;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    font-size: 12px;
-    line-height: 1.6;
-    overflow-x: auto;
-    margin: 10px 0;
-    text-indent: 0;
-    white-space: pre;
-  }
-
-  .file-tree {
-    background: #f4f6f8;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    font-size: 12px;
-    line-height: 1.8;
-    margin: 10px 0;
-    white-space: pre;
-    overflow-x: auto;
-  }
-
-  .tag {
-    display: inline-block;
-    background: var(--primary);
-    color: #fff;
-    padding: 1px 8px;
-    border-radius: 3px;
-    font-size: 11px;
-    font-weight: bold;
-  }
-
+  .insight-box { background: #eafaf1; border-left: 4px solid var(--good); padding: 12px 16px; margin: 16px 0; font-size: 13px; }
+  .insight-box p { text-indent: 0; }
+  .note { font-size: 12px; color: #888; text-indent: 0; }
+  .code-block { background: #f4f6f8; border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; font-family: "Cascadia Code", "Fira Code", Consolas, monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 10px 0; text-indent: 0; white-space: pre; }
+  .file-tree { background: #f4f6f8; border: 1px solid var(--border); border-radius: 4px; padding: 12px 16px; font-family: "Cascadia Code", "Fira Code", Consolas, monospace; font-size: 12px; line-height: 1.8; margin: 10px 0; white-space: pre; overflow-x: auto; }
+  .tag { display: inline-block; background: var(--primary); color: #fff; padding: 1px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; }
   .tag.frozen { background: #7fb3d8; }
   .tag.trainable { background: var(--accent2); }
-
-  .arch-diagram {
-    background: #f4f6f8;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px 20px;
-    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    font-size: 11px;
-    line-height: 1.5;
-    margin: 14px 0;
-    text-indent: 0;
-    white-space: pre;
-    overflow-x: auto;
-  }
-
-  .inline-code {
-    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    font-size: 0.9em;
-    background: #f4f6f8;
-    padding: 1px 5px;
-    border-radius: 3px;
-  }
-
-  .vis-table img { width: 100%; border: none; border-radius: 0; display: block; }
-  .vis-table td { padding: 1px 0; vertical-align: middle; line-height: 1; }
-  .vis-table th { font-size: 12px; }
+  .inline-code { font-family: "Cascadia Code", "Fira Code", Consolas, monospace; font-size: 0.9em; background: #f4f6f8; padding: 1px 5px; border-radius: 3px; }
+  .vis-table img { width: 100%; max-width: 180px; border: none; border-radius: 0; display: block; }
+  .vis-table td { padding: 2px; vertical-align: middle; line-height: 1; }
+  .vis-table th { font-size: 11px; }
   .vis-table { border-spacing: 0; }
+  .vis-section { margin: 28px 0; }
+  .vis-section .section-label { font-size: 14px; font-weight: bold; color: var(--accent); margin-bottom: 8px; border-left: 3px solid var(--accent); padding-left: 10px; }
+  .vis-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+  .vis-grid.col3 { grid-template-columns: repeat(3, 1fr); }
+  .vis-item { text-align: center; }
+  .vis-item img { width: 100%; border: 1px solid var(--border); border-radius: 4px; }
+  .vis-item .caption { font-size: 12px; font-weight: bold; margin-bottom: 6px; color: var(--primary); }
   .prompt-cell { font-size: 13px; color: #555; line-height: 1.4; text-align: left; }
-
-  @media print {
-    body { padding: 20px; }
-    .page-break { page-break-before: always; }
-  }
+  @media print { body { padding: 20px; } .page-break { page-break-before: always; } }
 </style>
 </head>
 <body>
 
-<h1>QwenVLSeg 实验报告<br><span style="font-size:14px;font-weight:normal;color:var(--accent)">基于 Qwen3-VL-Seg (May 2026) 的轻量化复现</span></h1>
+<h1>QwenVLSeg 实验报告<br><span style="font-size:14px;font-weight:normal;color:var(--accent)">基于 Qwen3-VL-Seg (May 2026) 的轻量化复现</span><br></h1>
 
 <!-- ============================================================ -->
 <h2>1. 研究背景与目标</h2>
 
-<p>Qwen3-VL-Seg 是阿里在 2026 年 5 月发布的视觉-语言分割模型，将 Qwen3-VL 的多模态理解能力扩展到像素级分割。原论文采用两阶段训练（grounding 预训练 + 分割微调），利用 LoRA 训练 LLM 输出结构化的 bbox 与 mask 标记。</p>
+<p>Qwen3-VL-Seg 是阿里在 2026 年 5 月发布的视觉-语言分割模型，将 Qwen3-VL 的多模态理解能力扩展到像素级分割。Qwen3.5-0.8B是 Qwen 系列最新的轻量级视觉-语言模型，参数量 0.8B，具备统一的视觉-语言理解和原生 2D grounding 能力。相比前代 Qwen3-VL-2B，Qwen3.5 的主要变化包括：(1) 模型架构升级为 Qwen3_5ForConditionalGeneration，视觉编码器和语言模型内部结构不同；(2) 支持思考模式；(3) ViT 更紧凑，但 grounding 精度相当；(4) 参数量仅为 2B 的 40%，训练和推理速度更快。本实验将 ViT 和 LLM 冻结，训练约 11.6M 参数的 Mask Decoder，在 Pascal VOC 2012 全 20 类上进行验证。</p>
 
-<p>本实验使用 Qwen3-VL-2B-Instruct 的 ViT 编码器和 LLM 解码器，训练约 5M 参数的 Mask Decoder。推理采用两遍前向策略，第一遍由 LLM 自回归生成 bbox，代码在生成的 JSON 中程序化插入 mask token，第二遍前向提取 LLM 隐藏状态作为语义查询。该查询与 bbox 编码、多尺度 ViT 特征融合后，经 2 层 Transformer Decoder 和迭代精炼模块预测分割掩膜。训练在 GT bbox 上施加 ±10% 扰动噪声以增强对 LLM 包围框偏差的鲁棒性。</p>
+<p>推理采用两遍前向策略：第一遍由 LLM 自回归生成 bbox JSON，第二遍插入 mask token 后前向 LLM 提取语义查询 h_mask，与 bbox 编码、多尺度 ViT 特征融合后经 Mask Decoder 预测分割掩膜。</p>
+
+<p>本次实验对比了三组条件：(1) Qwen3.5-0.8B 单类 person 训练，(2) Qwen3.5-0.8B 20 类联合训练，(3) Qwen3-VL-2B-Instruct 单类 person 训练（历史对照）。</p>
 
 <!-- ============================================================ -->
 <h2>2. 模型架构</h2>
 
-<h3>2.1 整体架构</h3>
-
 <div class="pipeline">
-  <div class="box">输入<br>512×512×3</div>
+  <div class="box">Input<br>512×512</div>
   <div class="arrow">→</div>
-  <div class="box accent">ViT<br><span style="font-size:10px;font-weight:normal">frozen</span></div>
+  <div class="box accent">ViT<span class="tag frozen" style="display:block;font-size:9px;margin-top:2px">frozen</span></div>
   <div class="arrow">→</div>
-  <div class="box small">Multi-scale<br>Features</div>
+  <div class="box small">Multi-scale<br>Features ×3</div>
   <div class="arrow">→</div>
   <div class="brace-group">
-    <div class="label">Mask Decoder · 5M </div>
+    <div class="label">Mask Decoder <span class="tag trainable">11.6M</span></div>
     <div class="box small" style="background:var(--accent2)">Spatial Injection ×3</div>
     <div class="box small" style="background:var(--accent2)">Box Encoder</div>
     <div class="box small" style="background:var(--accent2)">Transformer ×2</div>
     <div class="box small" style="background:var(--accent2)">Pixel Fusion</div>
   </div>
   <div class="arrow">→</div>
-  <div class="box">输出<br>512×512 mask</div>
+  <div class="box">Output<br>512×512 mask</div>
 </div>
 
 <div class="pipeline">
-  <div class="box light">Prompt<br>文本指令</div>
-  <div class="arrow">→</div>
-  <div class="box accent">LLM<br><span style="font-size:10px;font-weight:normal">frozen</span></div>
-  <div class="arrow">→</div>
-  <div class="box small">JSON bbox<br>2D grounding</div>
-  <div class="arrow">→</div>
-  <div class="box small">h_mask<br>语义查询</div>
-</div>
-
-<p>LLM 与 ViT 冻结，训练 Mask Decoder，可训练参数量约 5M，占总体参数量的 0.25%。</p>
-
-<h3>2.2 Mask Decoder 关键模块</h3>
-接收ViT 多尺度视觉特征、LLM 语义查询和bbox 空间先验三个输入，输出目标实例的二值分割掩膜。
-
-<h4>① Multi-scale Spatial Feature Injection</h4>
-
-<p>ViT 不同深度的特征图粒度不同，从 ViT 的三个不同深度提取特征图，浅层保留细节、深层捕获语义，对每个尺度做 1×1 通道投影后，用 3×3 深度可分离卷积增强局部感受野，统一上采样到最小空间尺寸并拼接融合。</p>
-
-<h4>② Box Encoder</h4>
-
-<p>将 bbox 坐标 <span class="inline-code">[x1, y1, x2, y2]</span> 转换为 <span class="inline-code">(x1, y1, log(w), log(h))</span> 四个标量，每个标量做傅里叶位置编码（32 频率），拼接后经 2 层 MLP 映射到 256 维。</p>
-<h4>③ Query Construction</h4>
-
-<p>语义查询 <span class="inline-code">h_mask</span>（mask token 位置的 LLM 隐藏状态）经线性层投影，与 bbox 编码相加后做 LayerNorm。</p>
-
-<h4>④ Memory Construction</h4>
-
-<p>Memory 由三部分相加：LLM 处理过的图像 token 特征（T<sub>mm</sub>）+ 融合视觉特征（F<sub>fuse</sub>）+ 可学习 2D 位置编码（P<sub>mem</sub>）</p>
-
-<h4>⑤ Box-Guided Pixel Fusion</h4>
-
-<p>从 bbox 生成软空间门控（bbox 扩大 15%，每像素 4 个 sigmoid 项相乘），将 stride=4 的浅层 CNN 特征与上采样 4× 的 F<sub>fuse</sub>双路像素融合。</p>
-
-<h4>⑥ Iterative Mask-Aware Query Refinement</h4>
-
-<p>两轮预测：第一轮 mask → 目标感知特征池化 → 精炼 query → Transformer Decoder 再次处理 → 第二轮 mask + IoU score。</p>
-
-
-<h3>2.3 推理流程</h3>
-
-<div class="pipeline">
-  <div class="box small">Pass 1</div>
-  <div class="arrow">→</div>
   <div class="box light">Prompt</div>
   <div class="arrow">→</div>
-  <div class="box light">HF generate</div>
+  <div class="box accent">LLM<span class="tag frozen" style="display:block;font-size:9px;margin-top:2px">frozen</span></div>
   <div class="arrow">→</div>
-  <div class="box small">JSON bbox</div>
+  <div class="box small">JSON bbox<br>+ label</div>
   <div class="arrow">→</div>
-  <div class="box small">parse all bboxes</div>
+  <div class="box small">h_mask<br>(per instance)</div>
 </div>
 
-<div class="pipeline">
-  <div class="box small" style="background:var(--accent2)">Pass 2</div>
-  <div class="arrow">→</div>
-  <div class="box small" style="background:var(--accent2)">Insert mask tokens</div>
-  <div class="arrow">→</div>
-  <div class="box small" style="background:var(--accent2)">LLM forward</div>
-  <div class="arrow">→</div>
-  <div class="box small" style="background:var(--accent2)">extract h_mask</div>
-  <div class="arrow">→</div>
-  <div class="box small" style="background:var(--accent2)">Mask Decoder</div>
-  <div class="arrow">→</div>
-  <div class="box small" style="background:var(--accent2)">max merge</div>
-</div>
-
-<p>Pass 1 利用 LLM 原生的 2D grounding 生成 bbox JSON；Pass 2 将 mask tokens 插入生成的 JSON，再次前向 LLM 提取 h_mask 特征；最后对每个实例运行 Mask Decoder，用 pixel-wise max 合并多人结果。</p>
 
 <!-- ============================================================ -->
 <h2>3. 实验设置</h2>
 
-<h3>3.1 训练配置</h3>
-
 <table>
-  <tr><th style="width:30%">参数</th><th>配置</th></tr>
-  <tr><td>LLM</td><td class="left-cell">Qwen/Qwen3-VL-2B-Instruct </td></tr>
-  <tr><td>ViT</td><td class="left-cell">Qwen3-VL 内置 Vision Encoder</td></tr>
-  <tr><td>Mask Decoder</td><td class="left-cell">~5M 参数</td></tr>
-  <tr><td>数据集</td><td class="left-cell">Pascal VOC 2012 · person 类 (id=15) · train ≈600 张 · val 440 张</td></tr>
-  <tr><td>输入尺寸</td><td class="left-cell">512 × 512（保持长宽比，padding 黑边）</td></tr>
-  <tr><td>批量大小</td><td class="left-cell">4 · gradient accumulation ×2（等效 batch=8）</td></tr>
-  <tr><td>训练轮数</td><td class="left-cell">20</td></tr>
-  <tr><td>优化器</td><td class="left-cell">AdamW · lr=1×10⁻⁴ · weight_decay=0.01 · cosine schedule · warmup 200 步</td></tr>
-  <tr><td>损失函数</td><td class="left-cell">BCE + Dice（仅分割 loss，无文本生成 loss）</td></tr>
-  <tr><td>Bbox 噪声</td><td class="left-cell">训练时 GT bbox 每角独立 ±10% 均匀扰动 — 提升对 LLM bbox 偏差的鲁棒性</td></tr>
+  <tr><th style="width:30%">参数</th><th>单类 Person</th><th>20 类联合</th></tr>
+  <tr><td>LLM</td><td class="left-cell" colspan="2">Qwen3.5-0.8B </td></tr>
+  <tr><td>Mask Decoder</td><td class="left-cell" colspan="2">~11.6M params</td></tr>
+  <tr><td>数据集</td><td class="left-cell">VOC 2012 · person (id=15) · train 434 · val 440</td><td class="left-cell">VOC 2012 · all 20 classes · train 2157 · val 2133</td></tr>
+  <tr><td>批量大小</td><td class="left-cell">4 · grad accum ×2 (eff=8)</td><td class="left-cell">8 · grad accum ×2 (eff=16) · AMP bf16</td></tr>
+  <tr><td>训练轮数</td><td class="left-cell" colspan="2">20</td></tr>
+  <tr><td>优化器</td><td class="left-cell" colspan="2">AdamW · lr=1×10⁻⁴ · weight_decay=0.01 · cosine schedule · warmup 200 steps</td></tr>
+  <tr><td>损失函数</td><td class="left-cell" colspan="2">BCE + Dice (segmentation loss only)</td></tr>
+  <tr><td>Bbox 噪声</td><td class="left-cell" colspan="2">GT bbox ±10% per-corner uniform perturbation</td></tr>
+  <tr><td>GPU</td><td class="left-cell" colspan="2">RTX 4080 SUPER 32GB · CUDA 12.8 · PyTorch 2.8.0</td></tr>
 </table>
 
-<h3>3.2 硬件环境</h3>
-
-<table>
-  <tr><th style="width:30%">项目</th><th>配置</th></tr>
-  <tr><td>GPU</td><td class="left-cell">NVIDIA RTX 4080 SUPER 32 GB</td></tr>
-  <tr><td>Python</td><td class="left-cell">3.10</td></tr>
-  <tr><td>PyTorch</td><td class="left-cell">2.8.0</td></tr>
-  <tr><td>CUDA</td><td class="left-cell">12.8</td></tr>
-  <tr><td>transformers</td><td class="left-cell">≥ 4.57.0</td></tr>
-  <tr><td>数据路径</td><td class="left-cell"><span class="inline-code">/root/autodl-tmp/data/VOCdevkit/VOC2012</span></td></tr>
-</table>
-
+<br>
 <!-- ============================================================ -->
-<h2>4. 实验结果</h2>
-
-<h3>4.1 主要指标（440 val samples · 100% bbox parse rate）</h3>
+<h2>4. 实验一：单类 Person 训练 (440 val samples)</h2>
 
 <table>
-  <tr>
-    <th>指标</th>
-    <th>定义</th>
-    <th>Our Result</th>
-    <th>GT Bbox Upper Bound</th>
-    <th>Δ</th>
-  </tr>
-  <tr>
-    <td><strong>mIoU</strong></td>
-    <td class="left-cell">所有样本 IoU 的算术平均</td>
-    <td class="kpi-val">0.7539</td>
-    <td>0.7975</td>
-    <td class="delta-val">−0.0436</td>
-  </tr>
-  <tr>
-    <td><strong>cIoU</strong></td>
-    <td class="left-cell">累计 Σintersection / Σunion（论文主指标）</td>
-    <td class="kpi-val">0.8159</td>
-    <td>0.8592</td>
-    <td class="delta-val">−0.0433</td>
-  </tr>
-  <tr>
-    <td><strong>Mean Dice</strong></td>
-    <td class="left-cell">所有样本 Dice 系数的算术平均</td>
-    <td class="kpi-val">0.8412</td>
-    <td>0.8764</td>
-    <td class="delta-val">−0.0352</td>
-  </tr>
-  <tr>
-    <td><strong>P@0.5</strong></td>
-    <td class="left-cell">IoU ≥ 0.5 的样本占比</td>
-    <td class="kpi-val">0.8864</td>
-    <td>0.9568</td>
-    <td class="delta-val">−0.0704</td>
-  </tr>
-  <tr>
-    <td><strong>P@0.7</strong></td>
-    <td class="left-cell">IoU ≥ 0.7 的样本占比</td>
-    <td class="kpi-val">0.7341</td>
-    <td>0.8455</td>
-    <td class="delta-val">−0.1114</td>
-  </tr>
-  <tr>
-    <td><strong>Bbox Parse Rate</strong></td>
-    <td class="left-cell">LLM JSON 解析成功率（440/440）</td>
-    <td class="kpi-val">100%</td>
-    <td>—</td>
-    <td>—</td>
-  </tr>
+  <tr><th>Metric</th><th>Qwen3.5-0.8B LLM</th><th>Qwen3.5-0.8B GT</th><th>Qwen3-VL-2B LLM</th><th>Qwen3-VL-2B GT</th></tr>
+  <tr><td>mIoU</td><td>0.7343</td><td>0.7588</td><td>0.7539</td><td>0.7975</td></tr>
+  <tr><td>cIoU</td><td>0.8141</td><td>0.8300</td><td>0.8159</td><td>0.8592</td></tr>
+  <tr><td>Mean Dice</td><td>0.8267</td><td>0.8491</td><td>0.8412</td><td>0.8764</td></tr>
+  <tr><td>P@0.5</td><td>0.9000</td><td>0.9409</td><td>0.8864</td><td>0.9568</td></tr>
+  <tr><td>P@0.7</td><td>0.7091</td><td>0.7273</td><td>0.7341</td><td>0.8455</td></tr>
+</table>
+
+<div class="insight-box">
+  <p><strong>发现：</strong>0.8B 以 40% 的 LLM 参数量达到 2B 的 97% mIoU 。单类 prompt 下两个模型的 LLM grounding 都非常精确 。2B 的 GT 上限更高 归因于更大的 ViT (dim=1024 vs 768)，但 0.8B 训练+推理更快，性价比更优。</p>
+</div>
+<!-- ============================================================ -->
+<h2>5. 实验二：20 类联合训练</h2>
+
+<h3>5.1 训练过程</h3>
+
+<p>Mask decoder 在所有 20 个 VOC 类别上联合训练，每个训练样本由一张图像与一个目标类别组成，使用统一的 prompt 模板 <span class="inline-code">"Locate and segment every instance that belongs to the following categories "…" </span>。训练样本从 434 增至 2157，mask decoder 接触到更多样化的 bbox 形状和尺度。</p>
+
+<table>
+  <tr><th>Epoch</th><th>1</th><th>5</th><th>10</th><th>14 (best)</th><th>20</th></tr>
+  <tr><td>Train seg loss</td><td>0.924</td><td>0.336</td><td>0.177</td><td>0.107</td><td>0.073</td></tr>
+  <tr><td>Val mIoU</td><td>0.543</td><td>0.687</td><td>0.741</td><td>0.751</td><td>0.746</td></tr>
+</table>
+
+
+<h3>5.2 逐类评估：LLM Bbox vs GT Bbox</h3>
+
+<p>每类使用与训练一致的逐类 prompt 独立推理。<span class="inline-code">mIoU</span> = VLM 生成 bbox 的 mIoU。<span class="inline-code">GT</span> = 使用真实 bbox 的 mIoU 上限。<span class="inline-code">Δ</span> = LLM 与 GT 的差距。<span class="inline-code">n</span> = val 集中包含该类的图像数。</p>
+
+<table style="font-size:11px">
+  <tr><th>Metric</th><th>aero</th><th>bike</th><th>bird</th><th>boat</th><th>bottle</th><th>bus</th><th>car</th><th>cat</th><th>chair</th><th>cow</th><th>table</th><th>dog</th><th>horse</th><th>mbike</th><th>person</th><th>plant</th><th>sheep</th><th>sofa</th><th>train</th><th>tv</th></tr>
+  <tr><td>LLM</td><td>0.811</td><td>0.506</td><td>0.791</td><td>0.766</td><td>0.570</td><td>0.859</td><td>0.695</td><td>0.855</td><td>0.463</td><td>0.855</td><td>0.676</td><td>0.815</td><td>0.809</td><td>0.807</td><td>0.728</td><td>0.434</td><td>0.855</td><td>0.723</td><td>0.852</td><td>0.676</td></tr>
+  <tr><td>GT</td><td>0.816</td><td>0.508</td><td>0.820</td><td>0.781</td><td>0.624</td><td>0.873</td><td>0.752</td><td>0.866</td><td>0.514</td><td>0.863</td><td>0.701</td><td>0.828</td><td>0.803</td><td>0.808</td><td>0.765</td><td>0.487</td><td>0.864</td><td>0.738</td><td>0.867</td><td>0.756</td></tr>
+  <tr><td>Δ</td><td>-0.01</td><td>-0.00</td><td>-0.03</td><td>-0.02</td><td>-0.05</td><td>-0.01</td><td>-0.06</td><td>-0.01</td><td>-0.05</td><td>-0.01</td><td>-0.03</td><td>-0.01</td><td>+0.01</td><td>-0.00</td><td>-0.04</td><td>-0.05</td><td>-0.01</td><td>-0.02</td><td>-0.02</td><td>-0.08</td></tr>
+  <tr><td>n</td><td>89</td><td>76</td><td>102</td><td>71</td><td>95</td><td>74</td><td>125</td><td>119</td><td>123</td><td>71</td><td>75</td><td>128</td><td>79</td><td>76</td><td>440</td><td>85</td><td>57</td><td>90</td><td>84</td><td>74</td></tr>
 </table>
 
 <div class="highlight-box">
-  <p><strong>关键发现：</strong>cIoU 0.816 高于 mIoU 0.754（+0.062），说明大目标分割效果好于小目标，累计交并比对大目标赋予更高权重。LLM bbox 与 GT bbox 之间的误差是 mIoU 的主要瓶颈（gap 0.044），但通过 per-instance bbox + max merge 的多实例策略，mIoU 已超过早期单粗框 GT bbox 基准（0.754 vs 0.749）。</p>
-  <p class="note">* 以上指标在固定 prompt 下测得，评估时 440 个样本均使用同一指令：<span class="inline-code">Locate and segment every instance that belongs to the following categories "person", report bbox coordinates and masks in JSON format.</span> 更换 prompt 措辞可能影响 LLM 输出分布，从而导致指标变化。</p>
+ <p><strong>发现：</strong>逐类 prompt 下 VLM grounding 全线接近 GT 上限，20 类平均 mIoU 与 GT 差距仅 0.025。这表明 Qwen3.5-0.8B 的逐类 2D grounding 能力在全 20 个 VOC 类别上均可靠，mask decoder 的类无关设计使其能够泛化到所有训练过的类别。剩余差距主要集中在小物体或细长结构类别（bottle、tv、plant、chair等），这些类的 GT 上限本身也因 mask stride=4 的分辨率瓶颈而偏低。</p>
 </div>
 
-<!-- ============================================================ -->
-<h2>5. 分割效果可视化</h2>
+<h3>5.3 可视化：Person — Qwen3-VL-2B vs Qwen3.5-0.8B 对比</h3>
 
-<p>以下为 val 集均匀抽样的 10 组对比图。</p>
+<p>选取 val 集中 3 张 person 图像，对比两个模型的预测结果。</p>
+<br>
 
-<table class="vis-table">
+<table class="vis-table" style="table-layout:fixed">
   <tr>
-    <th style="width:110px">Prompt</th>
-    <th style="width:21%">Input</th>
-    <th style="width:21%">GT</th>
-    <th style="width:21%">Prediction</th>
-    <th style="width:21%">Binary Mask</th>
-    <th style="width:50px">IoU</th>
+    <th style="width:16%">Input</th><th style="width:16%">GT</th><th style="width:17%">Qwen3-VL-2B Pred</th><th style="width:17%">Qwen3-VL-2B Mask</th><th style="width:17%">Qwen3.5-0.8B Pred</th><th style="width:17%">Qwen3.5-0.8B Mask</th>
   </tr>
   <tr>
-    <td class="prompt-cell">Locate and segment every person instance, output bbox and mask in JSON.</td>
-    <td><img src="report_viz/sample_0_input.png"></td>
-    <td><img src="report_viz/sample_0_gt.png"></td>
-    <td><img src="report_viz/sample_0_pred.png"></td>
-    <td><img src="report_viz/sample_0_mask.png"></td>
-    <td class="kpi-val">0.7396</td>
+    <td><img src="log/0.8b_report_viz/sample_159_input.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_159_gt.png"></td>
+    <td><img src="log/2b_report_viz/sample_159_pred.png"></td>
+    <td><img src="log/2b_report_viz/sample_159_mask.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_159_pred.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_159_mask.png"></td>
   </tr>
   <tr>
-    <td class="prompt-cell">Find every person in the image and generate their masks with bbox coordinates.</td>
-    <td><img src="report_viz/sample_39_input.png"></td>
-    <td><img src="report_viz/sample_39_gt.png"></td>
-    <td><img src="report_viz/sample_39_pred.png"></td>
-    <td><img src="report_viz/sample_39_mask.png"></td>
-    <td class="kpi-val">0.6991</td>
+    <td><img src="log/0.8b_report_viz/sample_199_input.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_199_gt.png"></td>
+    <td><img src="log/2b_report_viz/sample_199_pred.png"></td>
+    <td><img src="log/2b_report_viz/sample_199_mask.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_199_pred.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_199_mask.png"></td>
   </tr>
   <tr>
-    <td class="prompt-cell">Segment each person instance and return bbox_2d in JSON format.</td>
-    <td><img src="report_viz/sample_79_input.png"></td>
-    <td><img src="report_viz/sample_79_gt.png"></td>
-    <td><img src="report_viz/sample_79_pred.png"></td>
-    <td><img src="report_viz/sample_79_mask.png"></td>
-    <td class="kpi-val">0.8652</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Detect all people and provide bounding boxes for mask generation.</td>
-    <td><img src="report_viz/sample_159_input.png"></td>
-    <td><img src="report_viz/sample_159_gt.png"></td>
-    <td><img src="report_viz/sample_159_pred.png"></td>
-    <td><img src="report_viz/sample_159_mask.png"></td>
-    <td class="kpi-val">0.8543</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Locate and segment every person instance, output bbox and mask in JSON.</td>
-    <td><img src="report_viz/sample_199_input.png"></td>
-    <td><img src="report_viz/sample_199_gt.png"></td>
-    <td><img src="report_viz/sample_199_pred.png"></td>
-    <td><img src="report_viz/sample_199_mask.png"></td>
-    <td class="kpi-val">0.9190</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Find every person in the image and generate their masks with bbox coordinates.</td>
-    <td><img src="report_viz/sample_239_input.png"></td>
-    <td><img src="report_viz/sample_239_gt.png"></td>
-    <td><img src="report_viz/sample_239_pred.png"></td>
-    <td><img src="report_viz/sample_239_mask.png"></td>
-    <td class="kpi-val">0.6982</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Segment each person instance and return bbox_2d in JSON format.</td>
-    <td><img src="report_viz/sample_279_input.png"></td>
-    <td><img src="report_viz/sample_279_gt.png"></td>
-    <td><img src="report_viz/sample_279_pred.png"></td>
-    <td><img src="report_viz/sample_279_mask.png"></td>
-    <td class="kpi-val">0.7753</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Detect all people and provide bounding boxes for mask generation.</td>
-    <td><img src="report_viz/sample_359_input.png"></td>
-    <td><img src="report_viz/sample_359_gt.png"></td>
-    <td><img src="report_viz/sample_359_pred.png"></td>
-    <td><img src="report_viz/sample_359_mask.png"></td>
-    <td class="kpi-val">0.8654</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Locate and segment every person instance, output bbox and mask in JSON.</td>
-    <td><img src="report_viz/sample_399_input.png"></td>
-    <td><img src="report_viz/sample_399_gt.png"></td>
-    <td><img src="report_viz/sample_399_pred.png"></td>
-    <td><img src="report_viz/sample_399_mask.png"></td>
-    <td class="kpi-val">0.8951</td>
-  </tr>
-  <tr>
-    <td class="prompt-cell">Find every person in the image and generate their masks with bbox coordinates.</td>
-    <td><img src="report_viz/sample_439_input.png"></td>
-    <td><img src="report_viz/sample_439_gt.png"></td>
-    <td><img src="report_viz/sample_439_pred.png"></td>
-    <td><img src="report_viz/sample_439_mask.png"></td>
-    <td class="kpi-val">0.9171</td>
+    <td><img src="log/0.8b_report_viz/sample_319_input.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_319_gt.png"></td>
+    <td><img src="log/2b_report_viz/sample_319_pred.png"></td>
+    <td><img src="log/2b_report_viz/sample_319_mask.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_319_pred.png"></td>
+    <td><img src="log/0.8b_report_viz/sample_319_mask.png"></td>
   </tr>
 </table>
 
-<p>从上表可以观察到：模型在单人场景（0、39、359、439）下分割精度很高，预测 mask 与 GT 高度吻合，边界清晰；多人场景（79、159、239、279）得益于 per-instance mask decode + max merge 策略，各实例均被完整分割。</p>
+<p>两个模型的 person 分割质量肉眼难以区分，与定量指标一致：0.8B 达到 2B 的 97% mIoU。</p>
+
+<h3>5.4 可视化：20 类 Per-class Prompt 推理</h3>
+
+<p>每类选取一张 val 图像，单类 prompt 推理。</p>
+
+<table class="vis-table">
+  <tr>
+    <th>aero</th><th>bike</th><th>bird</th><th>boat</th><th>bottle</th><th>bus</th><th>car</th><th>cat</th><th>chair</th><th>cow</th>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/aeroplane_input.png"></td><td><img src="log/class_viz/bicycle_input.png"></td><td><img src="log/class_viz/bird_input.png"></td><td><img src="log/class_viz/boat_input.png"></td><td><img src="log/class_viz/bottle_input.png"></td>
+    <td><img src="log/class_viz/bus_input.png"></td><td><img src="log/class_viz/car_input.png"></td><td><img src="log/class_viz/cat_input.png"></td><td><img src="log/class_viz/chair_input.png"></td><td><img src="log/class_viz/cow_input.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/aeroplane_gt.png"></td><td><img src="log/class_viz/bicycle_gt.png"></td><td><img src="log/class_viz/bird_gt.png"></td><td><img src="log/class_viz/boat_gt.png"></td><td><img src="log/class_viz/bottle_gt.png"></td>
+    <td><img src="log/class_viz/bus_gt.png"></td><td><img src="log/class_viz/car_gt.png"></td><td><img src="log/class_viz/cat_gt.png"></td><td><img src="log/class_viz/chair_gt.png"></td><td><img src="log/class_viz/cow_gt.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/aeroplane_pred.png"></td><td><img src="log/class_viz/bicycle_pred.png"></td><td><img src="log/class_viz/bird_pred.png"></td><td><img src="log/class_viz/boat_pred.png"></td><td><img src="log/class_viz/bottle_pred.png"></td>
+    <td><img src="log/class_viz/bus_pred.png"></td><td><img src="log/class_viz/car_pred.png"></td><td><img src="log/class_viz/cat_pred.png"></td><td><img src="log/class_viz/chair_pred.png"></td><td><img src="log/class_viz/cow_pred.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/aeroplane_mask.png"></td><td><img src="log/class_viz/bicycle_mask.png"></td><td><img src="log/class_viz/bird_mask.png"></td><td><img src="log/class_viz/boat_mask.png"></td><td><img src="log/class_viz/bottle_mask.png"></td>
+    <td><img src="log/class_viz/bus_mask.png"></td><td><img src="log/class_viz/car_mask.png"></td><td><img src="log/class_viz/cat_mask.png"></td><td><img src="log/class_viz/chair_mask.png"></td><td><img src="log/class_viz/cow_mask.png"></td>
+  </tr>
+</table>
+
+<table class="vis-table">
+  <tr>
+    <th>table</th><th>dog</th><th>horse</th><th>mbike</th><th>person</th><th>plant</th><th>sheep</th><th>sofa</th><th>train</th><th>tv</th>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/diningtable_input.png"></td><td><img src="log/class_viz/dog_input.png"></td><td><img src="log/class_viz/horse_input.png"></td><td><img src="log/class_viz/motorbike_input.png"></td><td><img src="log/class_viz/person_input.png"></td>
+    <td><img src="log/class_viz/pottedplant_input.png"></td><td><img src="log/class_viz/sheep_input.png"></td><td><img src="log/class_viz/sofa_input.png"></td><td><img src="log/class_viz/train_input.png"></td><td><img src="log/class_viz/tvmonitor_input.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/diningtable_gt.png"></td><td><img src="log/class_viz/dog_gt.png"></td><td><img src="log/class_viz/horse_gt.png"></td><td><img src="log/class_viz/motorbike_gt.png"></td><td><img src="log/class_viz/person_gt.png"></td>
+    <td><img src="log/class_viz/pottedplant_gt.png"></td><td><img src="log/class_viz/sheep_gt.png"></td><td><img src="log/class_viz/sofa_gt.png"></td><td><img src="log/class_viz/train_gt.png"></td><td><img src="log/class_viz/tvmonitor_gt.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/diningtable_pred.png"></td><td><img src="log/class_viz/dog_pred.png"></td><td><img src="log/class_viz/horse_pred.png"></td><td><img src="log/class_viz/motorbike_pred.png"></td><td><img src="log/class_viz/person_pred.png"></td>
+    <td><img src="log/class_viz/pottedplant_pred.png"></td><td><img src="log/class_viz/sheep_pred.png"></td><td><img src="log/class_viz/sofa_pred.png"></td><td><img src="log/class_viz/train_pred.png"></td><td><img src="log/class_viz/tvmonitor_pred.png"></td>
+  </tr>
+  <tr>
+    <td><img src="log/class_viz/diningtable_mask.png"></td><td><img src="log/class_viz/dog_mask.png"></td><td><img src="log/class_viz/horse_mask.png"></td><td><img src="log/class_viz/motorbike_mask.png"></td><td><img src="log/class_viz/person_mask.png"></td>
+    <td><img src="log/class_viz/pottedplant_mask.png"></td><td><img src="log/class_viz/sheep_mask.png"></td><td><img src="log/class_viz/sofa_mask.png"></td><td><img src="log/class_viz/train_mask.png"></td><td><img src="log/class_viz/tvmonitor_mask.png"></td>
+  </tr>
+</table>
+
+<p>单类 prompt 下，Qwen3.5-0.8B 对所有 20 类均能正确生成 bbox 并分割。动物类和大型交通工具分割效果最好；细长结构（bicycle/chair/pottedplant）边界粗糙，与 GT bbox 上限分析一致。</p>
 
 <!-- ============================================================ -->
-<h2>6. 遇到的问题及解决方案</h2>
+<h2>6. 问题诊断与解决</h2>
 
 <div class="problem-box">
-  <h4>问题 1：LoRA 文本生成训练与基座模型原生能力冲突</h4>
-  <p><strong>现象：</strong>采用 LoRA（rank=8）训练 LLM 输出含 bbox 和 mask token 的结构化 JSON，训练 20 epoch 后模型生成完全崩溃，输出 <span class="inline-code">&lt;|im_start|&gt;</span> 循环序列。而未经训练的基座模型在测试图像上可以稳定、准确地输出 bbox JSON。进一步的 token 级别诊断表明，训练目标中 <span class="inline-code">assistant\n</span> 后的首个 token 与基座模型在该位置的强先验 token（始终为 <span class="inline-code">\n</span>）严重冲突，LoRA 的有限容量（约 8M 参数）无法克服该先验。</p>
-  <p><strong>根因：</strong>LoRA 本身并非问题根源，问题在于 LoRA + 极小规模单一数据 + 冻结的目标输出格式三者叠加。原论文能够在 LoRA 训练中保持 grounding 能力，是因为其 grounding 预训练阶段使用了大规模多任务混合数据——RefCOCO、COCO、GRIT 等多个数据集，数百万样本、数十类任务。LoRA 的梯度分散在丰富的数据分布上，不同任务的优化方向相互制衡，。而本实验仅有约 600 张 VOC person 图像，单一类别、单一 prompt 模板、单一输出格式，LoRA 在极窄的数据分布上反复施加同方向的梯度更新，最终覆盖了 2B 基座模型中形成稳定 bbox 输出通路的关键参数节点，使模型回退到底层语言先验（输出换行和空格序列），不再走 grounding 通路。</p>
-  <p><strong>解决：</strong>将 LLM 与 ViT 冻结。推理改用两遍前向策略，LLM 仅作为特征提取器参与 mask 生成。可训练参数从约 13M 降至约 5M，消除了 LoRA 破坏原生能力的风险。</p>
+  <h4>问题 1：LoRA 训练破坏 VLM 原生 Grounding 能力</h4>
+  <p>现象：LoRA (rank=8) 训练 LLM 输出结构化 JSON 后，模型生成崩溃为 <span class="inline-code">&lt;|im_start|&gt;</span> 循环。token 级别诊断显示训练目标中 assistant 后首个 token 与基座模型强先验冲突。</p>
+  <p>根因：极小规模单一数据 (600 张 person 图像) + 单一 prompt + 冻结输出格式，LoRA 在极窄分布上反复施加同方向梯度，覆盖了 2B 基座模型中 bbox 输出通路的关键参数。</p>
+  <p>解决：LLM/ViT 完全冻结，仅训练 Mask Decoder。</p>
 </div>
 
 <div class="problem-box">
-  <h4>问题 2：推理管线中的技术实现问题</h4>
-  <p><strong>现象一：手动 token 生成结果异常。</strong>在冻结 LLM 方案中，最初采用手动逐 token 调用 <span class="inline-code">self.llm_decoder()</span> 结合 <span class="inline-code">_get_lm_logits()</span> 进行自回归生成，输出序列的首个 token 为错误的 <span class="inline-code">```</span> 而非预期的 <span class="inline-code">\n</span>，与基座模型原生行为不一致。</p>
-  <p><strong>现象二：ViT 输出特征异常。</strong>将归一化后的 tensor（shape [C, H, W]，值域 [0, 1]）直接传入 <span class="inline-code">processor(images=[tensor])</span>，导致 ViT 编码的特征图失真，下游分割结果退化。</p>
-  <p><strong>根因：</strong>现象一的根因在于 <span class="inline-code">resize_token_embeddings()</span> 操作后，HuggingFace 的 <span class="inline-code">generate()</span> 方法内部会自动将 lm_head 权重与 embedding 表重新绑定（weight tying），而手动调用底层 <span class="inline-code">llm_decoder</span> 和 <span class="inline-code">lm_head</span> 绕过了这一机制，导致 logits 计算使用了未对齐的权重。现象二的根因在于 Qwen3-VL 的 processor 在设计上期望接收 PIL Image 对象，内部包含特定的 resize、归一化和 patch 嵌入预处理逻辑；直接传入 tensor 会跳过这些步骤，致使 ViT 接收到的 pixel_values 与训练分布不一致。</p>
-  <p><strong>解决：</strong>针对现象一，统一使用 <span class="inline-code">self.base_model.generate()</span> 执行自回归生成，确保与 HF 官方推理路径一致。针对现象二，在调用 processor 前将 tensor 转换为 PIL Image：<span class="inline-code">Image.fromarray((tensor.cpu().numpy()*255).astype(np.uint8).transpose(1,2,0))</span>。</p>
+  <h4>问题 2：手动 Token 生成与 Processor 输入异常</h4>
+  <p>现象：手动逐 token 调用 <span class="inline-code">llm_decoder()</span> 生成序列与基座模型不一致；直接传入 tensor 给 processor 导致 ViT 特征失真。</p>
+  <p>解决：统一使用 <span class="inline-code">base_model.generate()</span>；processor 前将 tensor 转为 PIL Image。</p>
 </div>
 
 <div class="problem-box">
-  <h4>问题 3：LLM bbox 与 GT bbox 分布偏差导致 mask decoder 泛化不足</h4>
-  <p><strong>现象：</strong>将训练好的 mask decoder 分别用 GT bbox 和 LLM 生成的 bbox 进行评估，mIoU 分别为 0.80 和 0.61，两者之间存在约 0.19 的显著性能差距。这表明 mask decoder 在精确 bbox 下表现良好，但对 LLM 的近似 bbox 缺乏鲁棒性。</p>
-  <p><strong>根因：</strong>训练阶段 mask decoder 的 bbox 输入始终来源于 GT mask 计算得到的精确包围框，而推理阶段的 bbox 来源于 LLM 的自回归生成。LLM 生成的 bbox 存在系统性坐标偏差（例如 x1 偏差可达 138 px），但 mask decoder 的 box-guided 组件——包括软空间门控（soft gate）和空间特征注入——对 bbox 的定位精度较为敏感，近似 bbox 会导致空间注意力图的焦点偏移，进而影响特征采样位置和最终分割精度。</p>
-  <p><strong>解决：</strong>在训练过程中对 GT bbox 施加随机扰动：四个角点各自独立添加 ±10% 范围内的均匀噪声（相对于 bbox 的宽高），扰动后的 bbox 用于 mask decoder 的前向计算，而损失计算仍使用原始的 GT mask。该策略使 mask decoder 在训练中即暴露于不精确的 bbox 输入，学会在 bbox 存在偏差时仍能定位正确的目标边界。实施后 LLM bbox 下的 mIoU 从 0.61 提升至 0.72（+0.11），且 GT bbox 下的上限性能未受影响。</p>
+  <h4>问题 3：LLM Bbox 与 GT Bbox 分布偏差</h4>
+  <p>现象：GT bbox mIoU 0.80 vs LLM bbox mIoU 0.61，差距 0.19。</p>
+  <p>解决：训练时对 GT bbox 施加 ±10% 独立角点噪声，mIoU 提升至 0.72 (+0.11)。</p>
 </div>
 
 <div class="problem-box">
-  <h4>问题 4：多人场景中非首个实例信息丢失</h4>
-  <p><strong>现象：</strong>在包含多个 person 实例的图像中，LLM 可以检测并输出多个实例的 bbox（如 3 人则输出 3 组坐标），但早期实现仅使用 JSON 数组中的第一个元素（<span class="inline-code">data[0]</span>），其余实例的 bbox 被直接丢弃。这导致多人场景下预测 mask 仅覆盖了第一个实例，GT 人像像素的覆盖率仅为 60–70%。</p>
-  <p><strong>根因：</strong>bbox 解析函数 <span class="inline-code">_parse_bbox_from_text</span> 的设计假定每张图像仅存在一个目标实例，直接索引数组首元素后返回。该假设在多人场景下不成立。</p>
-  <p><strong>解决：</strong>将解析函数重构为 <span class="inline-code">_parse_bboxes_from_text</span>，返回 LLM 检测到的全部 bbox 列表。对于每个 bbox 独立运行 mask decoder 生成该实例的分割候选，最终通过 pixel-wise max 操作将所有候选合并为单一输出 mask。该策略使 mIoU 从 0.72 进一步提升至 0.754（+0.034），多人场景的 GT 像素覆盖率从 65% 提升至 85–98%，且单人场景不受影响（max 操作在 N=1 时退化为恒等）。</p>
+  <h4>问题 4：多人场景非首个实例丢失</h4>
+  <p>现象：仅解析 JSON 首元素，多人场景覆盖率 65-70%。</p>
+  <p>解决：解析全部 bbox → per-instance mask decode → pixel-wise max merge，覆盖率升至 85-98%。</p>
 </div>
 
+<div class="problem-box">
+  <h4>问题 5：多类 Prompt 导致 VLM 性能退化</h4>
+  <p>现象：20 类联合 prompt 下 LLM mIoU 0.572 vs GT 0.752 (gap 0.18)。而单类 prompt 下 gap 仅 0.02-0.04。</p>
+  <p>根因：多类 prompt 列出 20 个类别名，在复杂共现场景中 VLM 注意力分散，导致漏检或标签混淆。动物类（单独出现）gap < 0.07，共现类（diningtable+chair, person+car）gap > 0.25。</p>
+  <p>结论：推荐实际使用单类 prompt（逐类查询），VLM 的 per-class grounding 精确可靠。</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>7. 结论与后续方向</h2>
+
+<ol>
+  <li>Mask Decoder 架构验证成功：class-agnostic 设计正确，20 类联合训练 GT 上限 0.752，多类数据提升单类性能。</li>
+  <li>Qwen3.5-0.8B 性价比优异：以 40% 参数量达到 2B 的 97% mIoU，训练+推理均更快。</li>
+  <li>Prompt 格式是关键变量：单类 prompt 下 VLM grounding 精确 (gap ~0.02)，多类 prompt 显著退化 (gap ~0.18)。</li>
+  <li>架构瓶颈在细长物体：stride=4 的 mask 输出对 chair/bicycle/pottedplant 等细长结构分辨力不足。减小 stride 或增大 decoder 容量可能进一步提升。</li>
+</ol>
 
 <!-- ============================================================ -->
 <h2>附录 A：项目文件结构</h2>
@@ -617,51 +322,19 @@
 <div class="file-tree">qwenvlseg-2/
 ├── model/
 │   ├── qwenvlseg.py              # 主模型：frozen LLM + mask decoder + 2-pass 推理
-│   └── mask_decoder.py           # Box-guided mask decoder（论文 Section 3.2）
+│   └── mask_decoder.py           # Box-guided mask decoder
 ├── data/
-│   ├── voc_dataset.py            # VOC 2012 数据加载器
-│   └── prompts.py                # ChatML prompt 模板
-├── train.py                      # 训练循环：AdamW + cosine + bbox 噪声
-├── eval.py                       # 评估：mIoU, cIoU, Dice, P@0.5, P@0.7
+│   ├── voc_dataset.py            # VOC 2012 多类数据加载器
+│   └── prompts.py                # ChatML prompt 模板 (single + multi)
+├── train.py                      # 训练循环 (AMP bf16, bbox noise, log)
+├── eval.py                       # 多类评估 (per-class metrics, multi/single prompt)
+├── eval_gt_bbox.py               # GT bbox 上限 (multi-class, CLI checkpoint)
 ├── inference.py                  # 单图推理
-├── config.yaml                   # 配置文件
-├── requirements.txt              # Python 依赖
+├── visualize.py                  # 批量可视化
+├── config.yaml                   # 配置文件 (categories: "all")
+├── log/                          # 训练 + 评估日志
+├── debugnotes.md                 # 调试历史
 └── README.md                     # 项目说明</div>
-
-<!-- ============================================================ -->
-<h2>附录 B：训练与评估指令</h2>
-
-<div class="code-block">
-# 安装依赖
-pip install -r requirements.txt
-
-# Smoke test（模型加载 + shape 验证）
-python test_forward.py
-
-# 过拟合测试（5 图 200 步）
-python debug_train.py
-
-# 正式训练
-python train.py --config config.yaml
-
-# 从 checkpoint 恢复
-python train.py --resume /path/to/checkpoint.pt
-
-# 全量评估（440 val 样本）
-python eval.py --checkpoint /path/to/best_checkpoint.pt --config config.yaml --max-samples 0
-
-# GT bbox 上限
-python eval_gt_bbox.py
-
-# 单图推理
-python inference.py --image /path/to/img.jpg --category person \
-  --checkpoint /path/to/checkpoint.pt --vis result.png
-
-# 批量可视化（12 张对比图）
-python visualize.py --checkpoint /path/to/checkpoint.pt \
-  --num-samples 12 --output-dir report_viz</div>
-
-<p class="note" style="margin-top:32px;text-align:center">报告生成时间：2026 年 6 月</p>
 
 </body>
 </html>

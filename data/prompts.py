@@ -10,12 +10,18 @@ MASK_TOKEN = "<mask_token>"
 MASK_END = "<mask_end>"
 
 
-def build_category_prompt(category: str) -> str:
-    """Build user instruction for category-based referring segmentation."""
+def build_multi_category_prompt(categories: list) -> str:
+    """Build user instruction for multi-category referring segmentation."""
+    categories_str = ", ".join(categories)
     return (
         f"Locate and segment every instance that belongs to the following categories "
-        f'"{category}", report bbox coordinates and masks in JSON format.'
+        f'"{categories_str}", report bbox coordinates and masks in JSON format.'
     )
+
+
+def build_category_prompt(category: str) -> str:
+    """Build user instruction for single-category referring segmentation."""
+    return build_multi_category_prompt([category])
 
 
 def build_target_json(bbox_list: list, category: str) -> str:

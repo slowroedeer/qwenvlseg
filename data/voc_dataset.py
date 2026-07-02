@@ -58,51 +58,60 @@ def mask_to_bbox(binary_mask, img_w, img_h, coord_scale=1000):
 
 
 class VOCSegDataset(Dataset):
-    """Pascal VOC 2012 dataset for instruction-based single-class segmentation.
+    """Pascal VOC 2012 dataset for instruction-based multi-class segmentation.
 
     Each sample returns:
         image: PIL Image (RGB)
-        mask:  torch.Tensor [H, W], 0=bg, 1=target_class, -100=ignore
+        mask:  np.array [H, W], 0=bg, 1=target_class, -100=ignore
         bbox:  list [x1,y1,x2,y2] in 0-1000 coords
-        prompt_text: str — full user prompt (ChatML format)
-        target_text: str — assistant target output (JSON)
+        cat_name: str — category name for this sample
     """
 
     def __init__(
         self,
         root: str,
         split: str = "train",
-        category: str = "person",
-        category_id: int = 15,
+        categories: str | list = "all",
         image_size: int = 512,
         min_mask_pixels: int = 100,
     ):
         self.root = root
         self.split = split
-        self.category = category
-        self.category_id = category_id
         self.image_size = image_size
         self.min_mask_pixels = min_mask_pixels
+
+        # Resolve categories
+        if categories == "all":
+            self.categories = VOC_CLASSES[1:]  # exclude "background"
+        elif isinstance(categories, (list, tuple)):
+            self.categories = list(categories)
+        else:
+            self.categories = [categories]
+
+        self.name_to_id = {name: idx for idx, name in enumerate(VOC_CLASSES)}
 
         # Load image list
         split_file = os.path.join(root, "ImageSets", "Segmentation", f"{split}.txt")
         with open(split_file, "r") as f:
             self.ids = [line.strip() for line in f if line.strip()]
 
-        # Filter: only keep images containing the target category
-        self.valid_ids = []
+        # Pre-compute valid (img_id, cat_id, cat_name) tuples
+        self.samples = []
         for img_id in self.ids:
             mask_path = os.path.join(root, "SegmentationClass", f"{img_id}.png")
-            if os.path.exists(mask_path):
-                mask = np.array(Image.open(mask_path))
-                if (mask == self.category_id).sum() >= self.min_mask_pixels:
-                    self.valid_ids.append(img_id)
+            if not os.path.exists(mask_path):
+                continue
+            mask = np.array(Image.open(mask_path))
+            for cat_name in self.categories:
+                cat_id = self.name_to_id[cat_name]
+                if (mask == cat_id).sum() >= self.min_mask_pixels:
+                    self.samples.append((img_id, cat_id, cat_name))
 
     def __len__(self):
-        return len(self.valid_ids)
+        return len(self.samples)
 
     def __getitem__(self, idx):
-        img_id = self.valid_ids[idx]
+        img_id, cat_id, cat_name = self.samples[idx]
 
         img_path = os.path.join(self.root, "JPEGImages", f"{img_id}.jpg")
         mask_path = os.path.join(self.root, "SegmentationClass", f"{img_id}.png")
@@ -110,9 +119,9 @@ class VOCSegDataset(Dataset):
         image = Image.open(img_path).convert("RGB")
         raw_mask = np.array(Image.open(mask_path))
 
-        # Binary mask: 1=person, 0=other, 255=void (keep as uint8 for PIL compatibility)
+        # Binary mask: 1=target_class, 0=other, 255=void (keep as uint8 for PIL compatibility)
         binary_mask = np.zeros_like(raw_mask, dtype=np.uint8)
-        binary_mask[raw_mask == self.category_id] = 1
+        binary_mask[raw_mask == cat_id] = 1
         binary_mask[raw_mask == 255] = 255  # void → 255 (PIL-safe)
 
         # Resize with padding — mask stays uint8 {0, 1, 255} throughout PIL processing
@@ -131,8 +140,8 @@ class VOCSegDataset(Dataset):
         binary_mask_bbox = (mask == 1).astype(np.uint8)
         bbox = mask_to_bbox(binary_mask_bbox, self.image_size, self.image_size)
 
-        # If no valid person pixels after resize, use dummy bbox
+        # If no valid pixels after resize, use dummy bbox
         if binary_mask_bbox.sum() == 0:
             bbox = [0, 0, 1000, 1000]
 
-        return image, mask, bbox
+        return image, mask, bbox, cat_name
